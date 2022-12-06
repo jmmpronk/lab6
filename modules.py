@@ -12,13 +12,13 @@ class numericalFO1D:
         self.analytic_values = []
 
     def runEuler(self, timestep=0.1, tmin=0.0, tmax=1.0, start_value=0.0, fargs=[]):
-        self.times = np.linspace(tmin, tmax, int(tmax / timestep))
+        self.times = np.arange(tmin, tmax, timestep)
 
         value = start_value
 
         for i, t in enumerate(self.times):
-            value += timestep * self.function(t, value, *fargs)
             self.values.append(value)
+            value += timestep * self.function(t, value, *fargs)
 
         return self.times, self.values
 
@@ -27,7 +27,7 @@ class numericalFO1D:
     ):
         if self.analytical != None:
 
-            self.times = np.linspace(tmin, tmax, int(tmax / timestep))
+            self.times = np.arange(tmin, tmax, timestep)
             self.analytic_values = self.analytical(self.times, start_value, *fargs)
 
             return self.times, self.analytic_values
@@ -56,14 +56,17 @@ def analytical3(t, start_value, fargs=None):
     return start_value + t ** 2
 
 
-ode = numericalFO1D(func3, analytical3)
-sim = ode.runEuler(timestep=0.1, tmin=0, tmax=3, start_value=4, fargs=[])
-analytical = ode.runAnalytical(timestep=0.1, tmin=0, tmax=3, start_value=4, fargs=[])
+if __name__ == "__main__":
+    ode = numericalFO1D(func3, analytical3)
+    sim = ode.runEuler(timestep=0.1, tmin=0, tmax=3, start_value=4, fargs=[])
+    analytical = ode.runAnalytical(
+        timestep=0.1, tmin=0, tmax=3, start_value=4, fargs=[]
+    )
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
 
-ode.plotNumerical(ax)
-ode.plotAnalytical(ax)
-plt.legend()
-plt.show()
+    ode.plotNumerical(ax)
+    ode.plotAnalytical(ax)
+    plt.legend()
+    plt.show()
