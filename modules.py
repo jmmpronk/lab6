@@ -13,6 +13,7 @@ class numericalFO1D:
 
     def runEuler(self, timestep=0.1, tmin=0.0, tmax=1.0, start_value=0.0, fargs=[]):
         self.times = np.arange(tmin, tmax, timestep)
+        self.values = []
 
         value = start_value
 
@@ -25,6 +26,8 @@ class numericalFO1D:
     def runAnalytical(
         self, timestep=0.1, tmin=0.0, tmax=1.0, start_value=0.0, fargs=[]
     ):
+        self.analytic_values = []
+
         if self.analytical != None:
 
             self.times = np.arange(tmin, tmax, timestep)

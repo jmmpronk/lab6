@@ -72,10 +72,10 @@ for i, timestep in enumerate(t_steps):
         ode.plotNumerical(ax)
         ode.plotAnalytical(ax)
 
+        # figure layout
         ax.set_xlabel("time ($t$)")
         ax.set_ylabel("x")
         ax.legend()
-
         ax.set_title(
             f"{subplot_labels[i][j]}) Function {j + 1} using $\Delta t$ = {timestep}."
         )
@@ -85,7 +85,8 @@ plt.tight_layout()
 
 # plt.suptitle("Numerical and analytical solutions for three differential equations.")
 plt.savefig("Exercise3.png")
-plt.show()
+# plt.show()
+plt.close()
 
 
 """ Exercise 4 """
@@ -100,23 +101,36 @@ def analytic4(t, start_value, g, k):
 
 
 # 4e and 4f
+
+# various growth rates and degrade rates
 growth_rates = [2, 1, 2, 1]
 degrade_rates = [3, 1.5, 2, 1]
 
+# stepsize used in simulations
 stepsize = 0.01
 
+# set up first figure
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=[9, 5])
+
+# colors for the different lines
 colors = ["b", "r", "g", "orange"]
 
+# initialize ODE
+ode = numericalFO1D(func4, analytic4)
+
 for i, growth_rate in enumerate(growth_rates):
-    ode = numericalFO1D(func4, analytic4)
+
+    # run simulation with given growth and degrade
     g = growth_rates[i]
     k = degrade_rates[i]
     numerical = ode.runEuler(stepsize, 0, 5, start_value=0, fargs=[g, k])
     analytical = ode.runAnalytical(stepsize, 0, 5, start_value=0, fargs=[g, k])
+
+    # plot the found solutions
     ode.plotAnalytical(ax1, color=colors[i], label=f"g = {g}, k = {k}")
     ode.plotNumerical(ax2, color=colors[i], label=f"g = {g}, k = {k}")
 
+# figure layout
 ax1.set_xlabel("time ($t$)")
 ax1.set_ylabel("x")
 ax2.set_xlabel("time ($t$)")
@@ -128,5 +142,90 @@ ax2.legend()
 ax1.set_title("a) Analytic solutions")
 ax2.set_title(f"b) Numerical solutions using $\Delta t$ = {stepsize}")
 
-plt.savefig("Exercise4_1.png")
+plt.savefig("Exercise4_2.png")
 plt.show()
+plt.close()
+
+
+# 4h
+
+# set up new figure
+fig, ax = plt.subplots(1, 1, figsize=[6, 6])
+
+for i, growth_rate in enumerate(growth_rates):
+
+    # run simulation with given growth and degrade
+    g = growth_rates[i]
+    k = degrade_rates[i]
+    analytical = ode.runAnalytical(stepsize, 0, 5, start_value=0, fargs=[g, k])
+
+    # plot dx/dt for every tenth x(t) point
+    x_list = analytical[1][::10]
+    dx_list = func4(0, x_list, g, k)
+    ax.plot(x_list, dx_list, "o-", ms=3, linewidth=1, label=f"g = {g}, k = {k}")
+
+# figure layout
+plt.xlabel("x(t)")
+plt.ylabel("dx/dt")
+plt.legend()
+plt.savefig("Exercise4_2.png")
+# plt.show()
+plt.close()
+
+
+# 4i
+
+# define variable function for g(t)
+def g(t, g0, t1, multiplication):
+
+    t = np.array(t)
+    t1 = t1 * np.ones_like(t)
+
+    return np.where(t < t1, g0, multiplication * g0)
+
+
+# define function for dx/dt with varying g(t)
+def func5(t, x, g0, t1, multiplication, k):
+    return g(t, g0, t1, multiplication) - k * x
+
+
+# initialize ODE
+ode = numericalFO1D(func5)
+
+# parameter values
+g0 = 1
+t1 = 5
+multiplication = 2
+k = 3
+
+# generate g(t) data points
+t = np.arange(0, 10, stepsize)
+g_t = g(t, g0, t1, multiplication)
+
+# run numerical simulation
+numerical = ode.runEuler(
+    stepsize, 0, 10, start_value=0, fargs=[g0, t1, multiplication, k]
+)
+
+# set up a new figure and plot g(t) and x(t)
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=[8, 5])
+
+ax1.plot(t, g_t)
+ode.plotNumerical(ax2)
+
+# figure layout
+ax1.set_ylim(0, 3)
+ax1.set_xlabel("$t$")
+ax1.set_ylabel("$g(t)$")
+ax1.set_title("a) Generation rate versus time")
+
+ax2.set_xlabel("$t$")
+ax2.set_ylabel("$x(t)$")
+ax2.set_title("b) Concentration versus time")
+
+plt.savefig("Exercise4_3.png")
+plt.show()
+plt.close()
+
+
+""" Exercise 5 """
