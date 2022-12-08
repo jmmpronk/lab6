@@ -436,7 +436,7 @@ plt.close()
 # 5o
 
 # parameter values
-stepsizes = [0.01, 0.5, 1, 3]
+stepsizes = [0.01, 0.5, 0.9, 1, 3]
 
 # set up figure
 fig, ax = plt.subplots(1, 1, figsize=[5, 5])
